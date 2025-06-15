@@ -1,0 +1,19 @@
+# Go
+/bin/
+/pkg/
+*.exe
+*.test
+*.out
+
+# GoLand
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
