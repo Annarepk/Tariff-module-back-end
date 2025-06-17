@@ -2,28 +2,16 @@ package service
 
 import (
 	"math"
+	"tariff-module-backend/internal/db"
 	"tariff-module-backend/internal/model"
 )
 
 // CalculateCommission рассчитывает комиссию с учетом порогов (если есть)
 func CalculateCommission(tariff model.Tariff, req model.CalcRequest) float64 {
 	//// Пробуем получить пороговые правила
-	//thresholdRules, err := db.GetThresholdRulesByTariffID(tariff.ID)
-	//
-	//if err == nil && len(thresholdRules) > 0 {
-	//	for _, rule := range thresholdRules {
-	//		if req.OperationCount >= rule.FromCount && req.OperationCount < rule.ToCount {
-	//			if matchesConditions(rule, req) {
-	//				return applyCommissionRule(rule, req.Amount)
-	//			}
-	//		}
-	//	}
-	//}
+	thresholdRules, err := db.GetThresholdRulesByTariffID(tariff.ID)
 
-	// Заглушка для проверки порогов (удалить при добавлении БД)
-	thresholdRules := getMockThresholdRules(tariff.ID)
-
-	if len(thresholdRules) > 0 {
+	if err == nil && len(thresholdRules) > 0 {
 		for _, rule := range thresholdRules {
 			if req.OperationCount >= rule.FromCount && req.OperationCount < rule.ToCount {
 				if matchesConditions(rule, req) {
@@ -40,45 +28,6 @@ func CalculateCommission(tariff model.Tariff, req model.CalcRequest) float64 {
 		MinFee:     tariff.MinFee,
 		MaxFee:     tariff.MaxFee,
 	}, req.Amount)
-}
-
-// Заглушка для проверки порогов (удалить при добавлении БД)
-func getMockThresholdRules(tariffID int) []model.ThresholdRule {
-	return []model.ThresholdRule{
-		{
-			FromCount:   0,
-			ToCount:     10,
-			PercentFee:  0,
-			FixedFee:    0,
-			CalcMode:    "sum",
-			MCC:         "", // любые MCC
-			ClientType:  "", // любые клиенты
-			AccountType: "", // любые счета
-			OpType:      "", // любые операции
-		},
-		{
-			FromCount:   10,
-			ToCount:     50,
-			PercentFee:  0.02,
-			FixedFee:    10,
-			CalcMode:    "sum",
-			MCC:         "5411",
-			ClientType:  "personal",
-			AccountType: "debit",
-			OpType:      "purchase",
-		},
-		{
-			FromCount:   50,
-			ToCount:     9999,
-			PercentFee:  0.03,
-			FixedFee:    15,
-			CalcMode:    "max",
-			MCC:         "", // любые MCC
-			ClientType:  "", // любые клиенты
-			AccountType: "", // любые счета
-			OpType:      "", // любые операции
-		},
-	}
 }
 
 // applyCommissionRule — применение одной схемы комиссии
@@ -107,7 +56,7 @@ func applyCommissionRule(rule model.ThresholdRule, amount float64) float64 {
 	return base
 }
 
-// matchesConditions проверяет соответствие доп. условий
+// matchesConditions проверяет соответствие дополнительных условий
 func matchesConditions(rule model.ThresholdRule, req model.CalcRequest) bool {
 	return (rule.MCC == "" || rule.MCC == req.MCC) &&
 		(rule.ClientType == "" || rule.ClientType == req.ClientType) &&
