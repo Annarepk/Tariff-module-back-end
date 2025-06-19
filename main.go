@@ -1,22 +1,22 @@
 package main
 
+// admin admin123
+//$2a$10$bycbQmzvOPSoV9mvahBWMucx70IMboHEzfXLdpar1IYRpkw8n26KC
+
 import (
 	"context"
 	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"tariff-module-backend/internal/iso"
-	"tariff-module-backend/internal/kafka"
-
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
 
 	"tariff-module-backend/internal/db"
 	"tariff-module-backend/internal/model"
@@ -31,16 +31,16 @@ import (
 
 func main() {
 	db.Connect()
-	ctx := context.Background()
+	//ctx := context.Background()
 
 	// Запуск Kafka consumer для JSON
-	go kafka.StartKafkaJSONConsumer(ctx)
+	//go kafka.StartKafkaJSONConsumer(ctx)
 
 	// Запуск Kafka consumer для XML
-	go kafka.StartXMLConsumer()
+	//go kafka.StartXMLConsumer()
 
 	// Запуск ISO-сервера
-	go iso.StartISO8583Server()
+	//go iso.StartISO8583Server()
 
 	r := mux.NewRouter()
 
@@ -187,7 +187,7 @@ func CreateClientHandler(w http.ResponseWriter, r *http.Request) {
 	// Ответ с выданными данными
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message":  "Клиент и пользователь созданы",
 		"clientId": client.ClientID,
 		"username": username,
@@ -237,7 +237,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Возвращаем токен
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"token": token,
 	})
 }
@@ -296,7 +296,7 @@ func GetOperationsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(ops)
+	_ = json.NewEncoder(w).Encode(ops)
 }
 
 // Тарифы
@@ -322,7 +322,7 @@ func CreateTariffHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "Тариф успешно создан",
 	})
 }
@@ -336,7 +336,7 @@ func GetTariffsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tariffs)
+	_ = json.NewEncoder(w).Encode(tariffs)
 }
 
 // GetTariffByIDHandler - получение конкретного тарифа
@@ -357,7 +357,7 @@ func GetTariffByIDHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tariff)
+	_ = json.NewEncoder(w).Encode(tariff)
 }
 
 // UpdateTariffHandler - изменение конкретного тарифа
@@ -384,7 +384,7 @@ func UpdateTariffHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "Тариф обновлён",
 	})
 }
@@ -407,7 +407,7 @@ func DeleteTariffHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "Тариф удалён",
 	})
 }
@@ -448,7 +448,7 @@ func CreateRuleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "Пороговое правило добавлено",
 	})
 }
@@ -477,7 +477,7 @@ func GetAllRulesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(rules)
+	_ = json.NewEncoder(w).Encode(rules)
 }
 
 // DeleteRuleHandler - удаление порогового правила
@@ -498,7 +498,7 @@ func DeleteRuleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "Правило удалено",
 	})
 }
@@ -539,7 +539,7 @@ func UpdateRuleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "Правило обновлено",
 	})
 }
@@ -555,7 +555,7 @@ func GetCustomMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 // Клиенты
@@ -569,7 +569,7 @@ func GetClientsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(clients)
+	_ = json.NewEncoder(w).Encode(clients)
 }
 
 // UploadClientsHandler - загрузка справочника клиентов
@@ -695,7 +695,7 @@ func UploadClientsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"added":    len(createdClients),
 		"skipped":  skipCount,
 		"errors":   failCount,
@@ -760,7 +760,7 @@ func UpdateClientHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "Клиент обновлён",
 	})
 }
@@ -812,7 +812,7 @@ func DeleteClientHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Возвращаем ответ
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"message": "Клиент удалён",
 	})
 }
@@ -899,5 +899,5 @@ func CalculateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }

@@ -21,8 +21,7 @@ func Connect() {
 	port := os.Getenv("DB_PORT")
 	dbname := os.Getenv("DB_NAME")
 
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", user, password, host, port, dbname)
-
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port, dbname)
 	var err error
 	DB, err = pgxpool.New(context.Background(), dsn)
 	if err != nil {
@@ -411,10 +410,10 @@ func UpdateClient(client model.Client) error {
 }
 
 // DeleteClient - удаление клиента
-func DeleteClient(client_id int) error {
+func DeleteClient(clientId int) error {
 	_, err := DB.Exec(context.Background(), `
-		DELETE FROM clients WHERE client_id = $1
-	`, client_id)
+		DELETE FROM clients WHERE clientId = $1
+	`, clientId)
 	return err
 }
 
@@ -422,11 +421,12 @@ func DeleteClient(client_id int) error {
 
 // GetUserByUsername - получение пользователя из БД при авторизации
 func GetUserByUsername(username string) (model.User, error) {
-	query := `SELECT id, username, password_hash, role FROM users WHERE username = $1`
+	query := `SELECT userid, roleid, username, password_hash FROM "User" WHERE username = $1`
 
 	var u model.User
-	err := DB.QueryRow(context.Background(), query, username).Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Role)
+	err := DB.QueryRow(context.Background(), query, username).Scan(&u.ID, &u.Role, &u.Username, &u.PasswordHash)
 	if err != nil {
+		fmt.Println("Error getting user by username:", err)
 		return model.User{}, err
 	}
 
